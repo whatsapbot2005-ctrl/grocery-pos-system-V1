@@ -1,16 +1,13 @@
 // ==========================================
-// 🛒 GROCERY POS SYSTEM - V2
+// 🛒 GROCERY POS SYSTEM
 // ==========================================
 
-// Products saved in browser
 let products = JSON.parse(
     localStorage.getItem("products")
 ) || [];
 
-// Current shopping cart
 let cart = [];
 
-// Today's sales
 let salesData = JSON.parse(
     localStorage.getItem("salesData")
 ) || {
@@ -23,47 +20,58 @@ let salesData = JSON.parse(
 // ELEMENTS
 // ==========================================
 
-const productForm = document.getElementById("productForm");
-const productTable = document.getElementById("productTable");
-const searchInput = document.getElementById("search");
+const productForm =
+    document.getElementById("productForm");
 
-const saleBarcode = document.getElementById("saleBarcode");
-const cartTable = document.getElementById("cartTable");
-const cartTotal = document.getElementById("cartTotal");
+const productTable =
+    document.getElementById("productTable");
 
-const cashReceived = document.getElementById("cashReceived");
-const changeAmount = document.getElementById("changeAmount");
+const searchInput =
+    document.getElementById("search");
+
+const saleBarcode =
+    document.getElementById("saleBarcode");
+
+const cartTable =
+    document.getElementById("cartTable");
+
+const cartTotal =
+    document.getElementById("cartTotal");
+
+const cashReceived =
+    document.getElementById("cashReceived");
+
+const changeAmount =
+    document.getElementById("changeAmount");
 
 
 // ==========================================
-// TODAY'S DATE
+// DATE
 // ==========================================
 
 function getToday() {
 
-    const now = new Date();
-
-    return now.toISOString().split("T")[0];
+    return new Date()
+        .toISOString()
+        .split("T")[0];
 
 }
 
 
-// ==========================================
-// SHOW DATE
-// ==========================================
-
 function showDate() {
 
-    const dateElement = document.getElementById("date");
-
-    const today = new Date();
+    const dateElement =
+        document.getElementById("date");
 
     dateElement.textContent =
-        today.toLocaleDateString("en-LK", {
-            year: "numeric",
-            month: "long",
-            day: "numeric"
-        });
+        new Date().toLocaleDateString(
+            "en-LK",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        );
 
 }
 
@@ -71,7 +79,7 @@ showDate();
 
 
 // ==========================================
-// RESET DAILY SALES
+// DAILY SALES
 // ==========================================
 
 function checkDailySales() {
@@ -85,10 +93,7 @@ function checkDailySales() {
             total: 0
         };
 
-        localStorage.setItem(
-            "salesData",
-            JSON.stringify(salesData)
-        );
+        saveSales();
 
     }
 
@@ -98,7 +103,7 @@ checkDailySales();
 
 
 // ==========================================
-// SAVE PRODUCTS
+// SAVE
 // ==========================================
 
 function saveProducts() {
@@ -110,10 +115,6 @@ function saveProducts() {
 
 }
 
-
-// ==========================================
-// SAVE SALES
-// ==========================================
 
 function saveSales() {
 
@@ -131,10 +132,9 @@ function saveSales() {
 
 productForm.addEventListener(
     "submit",
-    function (event) {
+    function(event) {
 
         event.preventDefault();
-
 
         const name =
             document
@@ -142,20 +142,17 @@ productForm.addEventListener(
                 .value
                 .trim();
 
-
         const barcode =
             document
                 .getElementById("barcode")
                 .value
                 .trim();
 
-
         const category =
             document
                 .getElementById("category")
                 .value
                 .trim();
-
 
         const buyPrice =
             Number(
@@ -164,14 +161,12 @@ productForm.addEventListener(
                     .value
             );
 
-
         const sellPrice =
             Number(
                 document
                     .getElementById("sellPrice")
                     .value
             );
-
 
         const stock =
             Number(
@@ -181,11 +176,12 @@ productForm.addEventListener(
             );
 
 
-        // Check barcode
         const existingProduct =
             products.find(
                 product =>
-                    product.barcode === barcode
+                    String(product.barcode).trim()
+                    ===
+                    String(barcode).trim()
             );
 
 
@@ -199,8 +195,6 @@ productForm.addEventListener(
 
         }
 
-
-        // Create product
 
         const product = {
 
@@ -244,12 +238,9 @@ productForm.addEventListener(
 // DISPLAY PRODUCTS
 // ==========================================
 
-function renderProducts(
-    searchText = ""
-) {
+function renderProducts(searchText = "") {
 
     productTable.innerHTML = "";
-
 
     const search =
         searchText
@@ -262,19 +253,19 @@ function renderProducts(
 
             return (
 
-                product.name
+                String(product.name)
                     .toLowerCase()
                     .includes(search)
 
                 ||
 
-                product.barcode
+                String(product.barcode)
                     .toLowerCase()
                     .includes(search)
 
                 ||
 
-                product.category
+                String(product.category)
                     .toLowerCase()
                     .includes(search)
 
@@ -283,9 +274,7 @@ function renderProducts(
         });
 
 
-    if (
-        filteredProducts.length === 0
-    ) {
+    if (filteredProducts.length === 0) {
 
         productTable.innerHTML = `
 
@@ -307,100 +296,84 @@ function renderProducts(
     }
 
 
-    filteredProducts.forEach(
-        product => {
+    filteredProducts.forEach(product => {
 
-            const row =
-                document.createElement("tr");
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${product.name}
-                </td>
-
-                <td>
-                    ${product.barcode}
-                </td>
-
-                <td>
-                    ${product.category || "-"}
-                </td>
-
-                <td>
-                    Rs. ${Number(
-                        product.buyPrice
-                    ).toFixed(2)}
-                </td>
-
-                <td>
-                    Rs. ${Number(
-                        product.sellPrice
-                    ).toFixed(2)}
-                </td>
-
-                <td>
-                    ${product.stock}
-                </td>
-
-                <td>
-
-                    <button
-                        onclick="deleteProduct(${product.id})"
-                        style="
-                            background:#dc2626;
-                            color:white;
-                            border:none;
-                            padding:8px;
-                            border-radius:6px;
-                        "
-                    >
-                        Delete
-                    </button>
-
-                </td>
-
-            `;
+        const row =
+            document.createElement("tr");
 
 
-            productTable.appendChild(row);
+        row.innerHTML = `
 
-        }
-    );
+            <td>${product.name}</td>
+
+            <td>${product.barcode}</td>
+
+            <td>
+                ${product.category || "-"}
+            </td>
+
+            <td>
+                Rs. ${Number(product.buyPrice).toFixed(2)}
+            </td>
+
+            <td>
+                Rs. ${Number(product.sellPrice).toFixed(2)}
+            </td>
+
+            <td>${product.stock}</td>
+
+            <td>
+
+                <button
+                    onclick="deleteProduct(${product.id})"
+                    style="
+                        background:#dc2626;
+                        color:white;
+                        border:none;
+                        padding:8px;
+                        border-radius:6px;
+                    "
+                >
+                    Delete
+                </button>
+
+            </td>
+
+        `;
+
+
+        productTable.appendChild(row);
+
+    });
 
 }
 
 
 // ==========================================
-// SEARCH PRODUCTS
+// SEARCH
 // ==========================================
 
 searchInput.addEventListener(
     "input",
-    function () {
+    function() {
 
-        renderProducts(
-            this.value
-        );
+        renderProducts(this.value);
 
     }
 );
 
 
 // ==========================================
-// DELETE PRODUCT
+// DELETE
 // ==========================================
 
 function deleteProduct(id) {
 
-    const confirmDelete =
-        confirm(
+    if (
+        !confirm(
             "Are you sure you want to delete this product?"
-        );
-
-
-    if (!confirmDelete) {
+        )
+    ) {
 
         return;
 
@@ -424,12 +397,15 @@ function deleteProduct(id) {
 
 
 // ==========================================
-// ADD PRODUCT TO CART
+// ADD TO CART
 // ==========================================
 
-const product = products.find(
-    item => String(item.barcode).trim() === String(barcode).trim()
-);
+function addToCart() {
+
+    const barcode =
+        String(
+            saleBarcode.value
+        ).trim();
 
 
     if (!barcode) {
@@ -446,7 +422,9 @@ const product = products.find(
     const product =
         products.find(
             item =>
-                item.barcode === barcode
+                String(item.barcode).trim()
+                ===
+                String(barcode).trim()
         );
 
 
@@ -474,7 +452,6 @@ const product = products.find(
     }
 
 
-    // Check whether product already exists
     const existing =
         cart.find(
             item =>
@@ -509,9 +486,8 @@ const product = products.find(
 
             barcode: product.barcode,
 
-            price: Number(
-                product.sellPrice
-            ),
+            price:
+                Number(product.sellPrice),
 
             quantity: 1
 
@@ -528,16 +504,14 @@ const product = products.find(
 
 
 // ==========================================
-// ENTER KEY FOR BARCODE
+// ENTER BARCODE
 // ==========================================
 
 saleBarcode.addEventListener(
     "keydown",
-    function (event) {
+    function(event) {
 
-        if (
-            event.key === "Enter"
-        ) {
+        if (event.key === "Enter") {
 
             event.preventDefault();
 
@@ -582,86 +556,72 @@ function renderCart() {
     }
 
 
-    cart.forEach(
-        item => {
+    cart.forEach(item => {
 
-            const row =
-                document.createElement("tr");
-
-
-            const total =
-                item.price *
-                item.quantity;
+        const row =
+            document.createElement("tr");
 
 
-            row.innerHTML = `
-
-                <td>
-                    ${item.name}
-                </td>
-
-                <td>
-                    Rs. ${item.price.toFixed(2)}
-                </td>
-
-                <td>
-
-                    <button
-                        onclick="changeQuantity(
-                            ${item.id},
-                            -1
-                        )"
-                    >
-                        −
-                    </button>
-
-                    <strong
-                        style="margin:0 8px;"
-                    >
-                        ${item.quantity}
-                    </strong>
-
-                    <button
-                        onclick="changeQuantity(
-                            ${item.id},
-                            1
-                        )"
-                    >
-                        +
-                    </button>
-
-                </td>
-
-                <td>
-                    Rs. ${total.toFixed(2)}
-                </td>
-
-                <td>
-
-                    <button
-                        onclick="removeFromCart(
-                            ${item.id}
-                        )"
-                        style="
-                            background:#dc2626;
-                            color:white;
-                            border:none;
-                            padding:7px;
-                            border-radius:6px;
-                        "
-                    >
-                        Remove
-                    </button>
-
-                </td>
-
-            `;
+        const total =
+            item.price *
+            item.quantity;
 
 
-            cartTable.appendChild(row);
+        row.innerHTML = `
 
-        }
-    );
+            <td>${item.name}</td>
+
+            <td>
+                Rs. ${item.price.toFixed(2)}
+            </td>
+
+            <td>
+
+                <button
+                    onclick="changeQuantity(${item.id}, -1)"
+                >
+                    −
+                </button>
+
+                <strong style="margin:0 8px;">
+                    ${item.quantity}
+                </strong>
+
+                <button
+                    onclick="changeQuantity(${item.id}, 1)"
+                >
+                    +
+                </button>
+
+            </td>
+
+            <td>
+                Rs. ${total.toFixed(2)}
+            </td>
+
+            <td>
+
+                <button
+                    onclick="removeFromCart(${item.id})"
+                    style="
+                        background:#dc2626;
+                        color:white;
+                        border:none;
+                        padding:7px;
+                        border-radius:6px;
+                    "
+                >
+                    Remove
+                </button>
+
+            </td>
+
+        `;
+
+
+        cartTable.appendChild(row);
+
+    });
 
 
     updateCartTotal();
@@ -670,13 +630,10 @@ function renderCart() {
 
 
 // ==========================================
-// CHANGE QUANTITY
+// QUANTITY
 // ==========================================
 
-function changeQuantity(
-    id,
-    amount
-) {
+function changeQuantity(id, amount) {
 
     const item =
         cart.find(
@@ -685,11 +642,7 @@ function changeQuantity(
         );
 
 
-    if (!item) {
-
-        return;
-
-    }
+    if (!item) return;
 
 
     const product =
@@ -702,17 +655,13 @@ function changeQuantity(
     item.quantity += amount;
 
 
-    // Minimum quantity
-    if (
-        item.quantity < 1
-    ) {
+    if (item.quantity < 1) {
 
         item.quantity = 1;
 
     }
 
 
-    // Maximum stock
     if (
         item.quantity >
         Number(product.stock)
@@ -734,7 +683,7 @@ function changeQuantity(
 
 
 // ==========================================
-// REMOVE FROM CART
+// REMOVE
 // ==========================================
 
 function removeFromCart(id) {
@@ -745,31 +694,25 @@ function removeFromCart(id) {
                 item.id !== id
         );
 
-
     renderCart();
 
 }
 
 
 // ==========================================
-// CART TOTAL
+// TOTAL
 // ==========================================
 
 function getCartTotal() {
 
     return cart.reduce(
-        (
-            total,
-            item
-        ) => {
+        (total, item) => {
 
-            return (
-                total +
+            return total +
                 (
                     item.price *
                     item.quantity
-                )
-            );
+                );
 
         },
         0
@@ -777,10 +720,6 @@ function getCartTotal() {
 
 }
 
-
-// ==========================================
-// UPDATE CART TOTAL
-// ==========================================
 
 function updateCartTotal() {
 
@@ -799,7 +738,7 @@ function updateCartTotal() {
 
 
 // ==========================================
-// CASH / CHANGE
+// CHANGE
 // ==========================================
 
 cashReceived.addEventListener(
@@ -836,14 +775,12 @@ function calculateChange() {
 
 
 // ==========================================
-// COMPLETE SALE
+// COMPLETE SALE + RECEIPT
 // ==========================================
 
 function completeSale() {
 
-    if (
-        cart.length === 0
-    ) {
+    if (cart.length === 0) {
 
         alert(
             "⚠️ Cart is empty!"
@@ -864,9 +801,7 @@ function completeSale() {
         ) || 0;
 
 
-    if (
-        cash < total
-    ) {
+    if (cash < total) {
 
         alert(
             "⚠️ Cash received is not enough!"
@@ -879,33 +814,28 @@ function completeSale() {
 
     // Reduce stock
 
-    cart.forEach(
-        item => {
+    cart.forEach(item => {
 
-            const product =
-                products.find(
-                    product =>
-                        product.id === item.id
-                );
+        const product =
+            products.find(
+                product =>
+                    product.id === item.id
+            );
 
 
-            if (product) {
+        if (product) {
 
-                product.stock =
-                    Number(
-                        product.stock
-                    ) -
-                    Number(
-                        item.quantity
-                    );
-
-            }
+            product.stock =
+                Number(product.stock)
+                -
+                Number(item.quantity);
 
         }
-    );
+
+    });
 
 
-    // Add today's sales
+    // Save today's sales
 
     salesData.total += total;
 
@@ -922,19 +852,17 @@ function completeSale() {
         cash - total;
 
 
+    // Generate receipt
+
+    generateReceipt(
+        total,
+        cash,
+        change
+    );
+
+
     alert(
-
-        "✅ SALE COMPLETED!\n\n" +
-
-        "Total: Rs. " +
-        total.toFixed(2) +
-
-        "\nCash: Rs. " +
-        cash.toFixed(2) +
-
-        "\nChange: Rs. " +
-        change.toFixed(2)
-
+        "✅ SALE COMPLETED!"
     );
 
 
@@ -957,7 +885,240 @@ function completeSale() {
 
 
 // ==========================================
-// UPDATE DASHBOARD
+// RECEIPT
+// ==========================================
+
+function generateReceipt(
+    total,
+    cash,
+    change
+) {
+
+    const receiptSection =
+        document.getElementById(
+            "receiptSection"
+        );
+
+    const receipt =
+        document.getElementById(
+            "receipt"
+        );
+
+
+    const now =
+        new Date();
+
+
+    const date =
+        now.toLocaleDateString("en-LK");
+
+
+    const time =
+        now.toLocaleTimeString("en-LK");
+
+
+    let itemsHTML = "";
+
+
+    // Receipt items
+
+    cart.forEach(item => {
+
+        const itemTotal =
+            item.price *
+            item.quantity;
+
+
+        itemsHTML += `
+
+            <tr>
+
+                <td>
+                    ${item.name}
+                </td>
+
+                <td>
+                    ${item.quantity}
+                </td>
+
+                <td>
+                    Rs. ${item.price.toFixed(2)}
+                </td>
+
+                <td>
+                    Rs. ${itemTotal.toFixed(2)}
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    receipt.innerHTML = `
+
+        <div class="receipt-box">
+
+            <h2>🛒 GROCERY SHOP</h2>
+
+            <p>
+                Thank you for shopping!
+            </p>
+
+            <hr>
+
+            <p>
+                <strong>Date:</strong>
+                ${date}
+            </p>
+
+            <p>
+                <strong>Time:</strong>
+                ${time}
+            </p>
+
+            <hr>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${itemsHTML}
+
+                </tbody>
+
+            </table>
+
+            <hr>
+
+            <h3>
+                Total:
+                Rs. ${total.toFixed(2)}
+            </h3>
+
+            <p>
+                Cash:
+                Rs. ${cash.toFixed(2)}
+            </p>
+
+            <p>
+                Change:
+                Rs. ${change.toFixed(2)}
+            </p>
+
+            <hr>
+
+            <p style="text-align:center;">
+                Thank You ❤️
+            </p>
+
+        </div>
+
+    `;
+
+
+    receiptSection.style.display =
+        "block";
+
+
+    receiptSection.scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+
+// ==========================================
+// PRINT RECEIPT
+// ==========================================
+
+function printReceipt() {
+
+    const receipt =
+        document.getElementById(
+            "receipt"
+        ).innerHTML;
+
+
+    const printWindow =
+        window.open(
+            "",
+            "",
+            "width=400,height=600"
+        );
+
+
+    printWindow.document.write(`
+
+        <html>
+
+        <head>
+
+            <title>Receipt</title>
+
+            <style>
+
+                body {
+                    font-family: Arial;
+                    padding: 20px;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                th,
+                td {
+                    padding: 6px;
+                    border-bottom: 1px solid #ddd;
+                    text-align: left;
+                }
+
+                h2,
+                h3,
+                p {
+                    margin: 6px 0;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            ${receipt}
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+    printWindow.focus();
+
+    printWindow.print();
+
+}
+
+
+// ==========================================
+// DASHBOARD
 // ==========================================
 
 function updateDashboard() {
@@ -965,79 +1126,46 @@ function updateDashboard() {
     checkDailySales();
 
 
-    const productCount =
-        document.getElementById(
-            "productCount"
-        );
-
-
-    const stockCount =
-        document.getElementById(
-            "stockCount"
-        );
-
-
-    const lowStock =
-        document.getElementById(
-            "lowStock"
-        );
-
-
-    const todaySales =
-        document.getElementById(
-            "todaySales"
-        );
-
-
-    // Product count
-
-    productCount.textContent =
+    document.getElementById(
+        "productCount"
+    ).textContent =
         products.length;
 
 
-    // Total stock
-
     const totalStock =
         products.reduce(
-            (
-                total,
-                product
-            ) => {
+            (total, product) => {
 
-                return (
-                    total +
-                    Number(
-                        product.stock
-                    )
-                );
+                return total +
+                    Number(product.stock);
 
             },
             0
         );
 
 
-    stockCount.textContent =
+    document.getElementById(
+        "stockCount"
+    ).textContent =
         totalStock;
 
-
-    // Low stock
 
     const lowStockProducts =
         products.filter(
             product =>
-                Number(
-                    product.stock
-                ) <= 5
+                Number(product.stock) <= 5
         );
 
 
-    lowStock.textContent =
+    document.getElementById(
+        "lowStock"
+    ).textContent =
         lowStockProducts.length;
 
 
-    // Today's sales
-
-    todaySales.textContent =
+    document.getElementById(
+        "todaySales"
+    ).textContent =
         "Rs. " +
         Number(
             salesData.total
@@ -1047,7 +1175,7 @@ function updateDashboard() {
 
 
 // ==========================================
-// START APP
+// START
 // ==========================================
 
 renderProducts();
