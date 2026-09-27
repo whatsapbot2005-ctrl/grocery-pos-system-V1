@@ -427,10 +427,9 @@ function deleteProduct(id) {
 // ADD PRODUCT TO CART
 // ==========================================
 
-function addToCart() {
-
-    const barcode =
-        saleBarcode.value.trim();
+const product = products.find(
+    item => String(item.barcode).trim() === String(barcode).trim()
+);
 
 
     if (!barcode) {
